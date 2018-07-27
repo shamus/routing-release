@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+logfile=/var/vcap/sys/log/tcp_router/drain.log
+
+HAPROXY_PID_FILE=/var/vcap/sys/run/tcp_router/haproxy.pid
+
+stop_haproxy() {
+    status_haproxy
+    if [ "${RETVAL}" = 0 ]; then
+        set +e
+        for pid in $(cat "${HAPROXY_PID_FILE}"); do
+            kill ${pid} || RETVAL=$?
+        done
+        set -e
+        if [ "${RETVAL}" = 0 ]; then
+            remove_haproxy_pid
+            exit 0
+        else
+            echo "FAILED - check logs"  >> ${logfile}
+        fi
+    else
+        echo "HAProxy not running" >> ${logfile}
+        exit 0
+    fi
+}
+
+# RETVAL = 0 if running, != 0 if stopped
+status_haproxy() {
+    if [ -f "${HAPROXY_PID_FILE}" ]; then
+        RETVAL=0
+        set +e
+        for pid in $(cat "${HAPROXY_PID_FILE}"); do
+            kill -0 "${pid}" > /dev/null 2>&1 || RETVAL=3
+        done
+        kill -0 $(cat "${HAPROXY_PID_FILE}") > /dev/null 2>&1
+        if [ $? != 0 ]; then
+            RETVAL=3
+        fi
+        set -e
+    else
+        RETVAL=1
+    fi
+}
+
+remove_haproxy_pid() {
+    rm -f "${HAPROXY_PID_FILE}"
+}
+
+
+
+
+# stopping haproxy
+echo -n "Stopping HAProxy: " >> ${logfile}
+stop_haproxy
+
+

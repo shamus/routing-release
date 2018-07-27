@@ -1,0 +1,85 @@
+#!/bin/bash -e
+
+HAPROXY_PID_FILE=/var/vcap/sys/run/tcp_router/haproxy.pid
+
+PATH=/var/vcap/packages/haproxy/bin:$PATH
+DAEMON=$(which haproxy)
+CONFIG_DIR=/var/vcap/jobs/tcp_router/config
+
+TIMESTAMP=$(which date)
+
+test -x "${DAEMON}"
+test -f "${CONFIG}"
+
+
+remove_haproxy_pid() {
+    rm -f "${HAPROXY_PID_FILE}"
+}
+
+start_haproxy() {
+    status_haproxy
+    if [ "${RETVAL}" = 0 ]; then
+        echo "HAProxy is currently running"
+    else
+        RETVAL=0
+        echo "$("${TIMESTAMP}"): Starting HAProxy"
+        set +e
+        "${DAEMON}" -f "${CONFIG_DIR}/haproxy.conf" -D -p "${HAPROXY_PID_FILE}" 0<&-
+        RETVAL=$?
+        set -e
+        case "${RETVAL}" in
+            0)
+                echo "$("${TIMESTAMP}"): Successfully started HAProxy"
+                ;;
+            *)
+                echo "$("${TIMESTAMP}"): Errored starting HAProxy"
+                echo "$("${TIMESTAMP}"): Errored starting HAProxy" >&2
+                echo "$("${TIMESTAMP}"): Removing stale PID file for HAProxy"
+                remove_haproxy_pid
+                echo "FAILED - check logs"
+                RETVAL=1
+                ;;
+        esac
+    fi
+}
+
+# RETVAL = 0 if running, != 0 if stopped
+status_haproxy() {
+    if [ -f "${HAPROXY_PID_FILE}" ]; then
+        RETVAL=0
+        set +e
+        for pid in $(cat "${HAPROXY_PID_FILE}"); do
+            kill -0 "${pid}" > /dev/null 2>&1 || RETVAL=3
+        done
+        kill -0 $(cat "${HAPROXY_PID_FILE}") > /dev/null 2>&1
+        if [ $? != 0 ]; then
+            RETVAL=3
+        fi
+        set -e
+    else
+        RETVAL=1
+    fi
+}
+
+function setcap_haproxy() {
+    PATH=/var/vcap/packages/haproxy/bin:$PATH
+    setcap cap_net_bind_service,cap_sys_resource=+ep $DAEMON
+}
+
+setcap_haproxy
+chown -R vcap:vcap "${CONFIG_DIR}"
+
+#Start HaProxy
+start_haproxy
+
+#Start tcp_router
+echo -n "Starting tcp_router."
+
+set +e
+host -r <%= p("dns_health_check_host") %>
+if [[ "0" != "$?" ]]; then
+  echo "DNS is not up"
+  exit 1
+fi
+set -e
+

@@ -2,7 +2,8 @@
 name: tcp_router
 
 templates:
-  tcp_router_ctl.erb: bin/tcp_router_ctl
+  bpm-pre-start.erb: bin/bpm-pre-start
+  bpm.yml.erb: bin/bpm.yml
   haproxy_reloader: bin/haproxy_reloader
   pre-start: bin/pre-start
   tcp_router.yml.erb: config/tcp_router.yml
