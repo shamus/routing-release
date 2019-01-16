@@ -55,7 +55,7 @@ properties:
   routing_api.system_domain:
     description: "Domain reserved for CF operator; base URL where the UAA, Cloud Controller, and other non-user apps listen"
   skip_ssl_validation:
-    description: Skip TLS verification when talking to UAA
+    description: Skip TLS verification for any TLS connection. This is intended for development purposes. Do not use in a production environment.
     default: false
   routing_api.log_level:
     description: "Log level"

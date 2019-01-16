@@ -7,10 +7,10 @@ metron_config:
   port: <%= p("metron.port") %>
 metrics_reporting_interval: <%= p("routing_api.metrics_reporting_interval") %>
 statsd_endpoint: <%= p("routing_api.statsd_endpoint") %>
+skip_ssl_validation: <%= p("skip_ssl_validation") %>
 oauth:
   token_endpoint: <%= p("uaa.token_endpoint") %>
   port: <%= p("uaa.tls_port") %>
-  skip_ssl_validation: <%= p("skip_ssl_validation") %>
   <% if p("uaa.ca_cert") != "" %>
   ca_certs: "/var/vcap/jobs/routing-api/config/certs/uaa/ca.crt"
   <% end %>
@@ -34,6 +34,7 @@ consul_cluster:
       'schema' => p("routing_api.sqldb.schema"),
       'username' => p("routing_api.sqldb.username"),
       'password' => p("routing_api.sqldb.password"),
+      'skip_hostname_validation' => p("routing_api.sqldb.skip_hostname_validation"),
     }
   }
   if_p("routing_api.sqldb.ca_cert") do |cert|
