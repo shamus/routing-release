@@ -22,12 +22,12 @@ chown -R mysql:mysql /var/lib/mysql /var/log/mysql /var/run/mysqld
 chown -R postgres:postgres /var/lib/postgresql /var/log/postgresql /var/run/postgresql /etc/postgresql
 chown -R root:ssl-cert /etc/ssl/private
 
+set +e
 service rsyslog restart
 service mysql restart
 service postgresql restart
 
 # get consul if needed
-set +e
 consul --version
 consul_status=$?
 set -e
@@ -36,13 +36,6 @@ if [[ ${consul_status} -ne 0 ]]; then
   unzip -o "${tmpdir}/consul-0.6.3.zip" -d "./${bin_dir}"
   rm "${tmpdir}/consul-0.6.3.zip"
 fi
-
-echo "Running template tests"
-  # gem install bundler
-  bundle install
-  rubocop spec # fix these errors by running 'rubocop -a spec' or add an ignore directive
-  bundle exec rspec
-echo "Finished running template tests"
 
 export PATH=$PATH:$PWD/bin
 go get github.com/nats-io/gnatsd
