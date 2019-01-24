@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex -o pipefail
+set -exo pipefail
 
 PACKAGE=$1
 
@@ -22,16 +22,11 @@ chown -R mysql:mysql /var/lib/mysql /var/log/mysql /var/run/mysqld
 chown -R postgres:postgres /var/lib/postgresql /var/log/postgresql /var/run/postgresql /etc/postgresql
 chown -R root:ssl-cert /etc/ssl/private
 
-service rsyslog restart
-service mysql restart
-service postgresql restart
-
-echo "Running template tests"
-  # gem install bundler
-  bundle install
-  rubocop spec # fix these errors by running 'rubocop -a spec' or add an ignore directive
-  bundle exec rspec
-echo "Finished running template tests"
+set +e
+  service rsyslog restart
+  service mysql restart
+  service postgresql restart
+set -e
 
 export PATH=$PATH:$PWD/bin
 go get github.com/nats-io/gnatsd
