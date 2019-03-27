@@ -76,6 +76,9 @@ properties:
   routing_api.mtls_enabled:
     description: "Enable to cause routing-api to listen with a mTLS server"
     default: false
+  routing_api.http_enabled:
+    description: "Enable traffic on http protocol"
+    default: true
   routing_api.mtls_port:
     description: "Port on which Routing API is running, listening with mTLS."
     default: 3001

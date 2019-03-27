@@ -154,6 +154,7 @@ describe 'routing_api' do
                                     },
                                     'api' => {
                                       'listen_port' => 3000,
+                                      'http_enabled' => true,
                                       'mtls_enabled' => false,
                                       'mtls_listen_port' => 3001,
                                       'mtls_client_ca_file' => '/var/vcap/jobs/routing-api/config/certs/routing-api/client_ca.crt',
@@ -175,6 +176,16 @@ describe 'routing_api' do
                                     'statsd_endpoint' => 'localhost:8125',
                                     'system_domain' => 'the.system.domain',
                                     'uuid' => 'xxxxxx-xxxxxxxx-xxxxx')
+    end
+
+    describe 'when disabiling http' do
+      before do
+        merged_manifest_properties['routing_api']['http_enabled'] = false
+      end
+
+      it 'renders http_enabled as false' do
+        expect(rendered_config['api']['http_enabled']).to eq(false)
+      end
     end
 
     describe 'when overrideing the mTLS api listen port' do
