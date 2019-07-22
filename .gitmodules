@@ -93,7 +93,7 @@
 	url = https://github.com/cloudfoundry/cf-routing-test-helpers
 [submodule "src/code.cloudfoundry.org/gorouter"]
 	path = src/code.cloudfoundry.org/gorouter
-	url = https://github.com/cloudfoundry/gorouter
+	url = https://github.com/shamus/gorouter
 [submodule "src/github.com/nats-io/go-nats"]
 	path = src/github.com/nats-io/go-nats
 	url = https://github.com/nats-io/go-nats
